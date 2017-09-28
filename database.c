@@ -36,15 +36,22 @@ entry_user_t *db_load_user(const char *dbfile) {
 	 */
 #ifdef __DEBUG__ 
 	P_DEBUG("Starting recalculating next pointers at %p\n", db_buffer);
+	int count = 0;
 #endif
 	entry_user_t *ptr = db_buffer;
 	while ((void *)ptr < db_buffer + len) {
-		ptr->next = ptr + sizeof(entry_user_t);
+		ptr->next = (void *)ptr + sizeof(entry_user_t);
 		++ptr;
+#ifdef __DEBUG__
+		++count;
+#endif
 	}
 	//the last element
 	(ptr-1)->next = NULL;
-	
+
+#ifdef __DEBUG__
+	P_DEBUG("Done recalculating next pointer within %d element(s)\n", count);
+#endif
 	return (entry_user_t *)db_buffer;
 }
 
@@ -156,11 +163,18 @@ entry_user_t *db_find_user(entry_user_t *db, const char *username) {
 int db_add_user(entry_user_t *db, entry_user_t *new) {
 	//add to the end of the list
 	entry_user_t *ptr = db;
-	printf("xxx %p\n", ptr->next);
+#ifdef __DEBUG__
+	int count =0;
+#endif
 	while (ptr->next != NULL) {
+#ifdef __DEBUG__ 
+		++count;
+#endif
 		ptr = ptr->next;
 	}
-	puts("xxx");
+#ifdef __DEBUG__ 
+	P_DEBUG("Done seeking within %d round(s)\n", count);
+#endif
 
 	ptr->next = new;
 	new->next = NULL;

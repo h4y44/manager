@@ -1,12 +1,17 @@
 #include "session.h"
 
+#define P_HEADER(s) \
+	do {printf("---- Current user: %s ----\n", s->user->username); } while (0);
+
 static int menu_admin(session_t *s) {
 	switch (s->level) {
 		case 0: //main menu
 			{
+				P_HEADER(s);
 				puts("---- Admin menu ----");
 				printf("1. List all employees\n2. Add an employee\n3. Delete an employee\
-						\n4. Change admin password\n5. Log out\nYour selection: ");
+						\n4. Change my password\n5. Log out\nYour selection: ");
+				fflush(stdin);
 				scanf("%d", &s->level);
 				break;
 			}
@@ -14,6 +19,8 @@ static int menu_admin(session_t *s) {
 			{
 				puts("---- All employees ----");
 				db_list_all(s->db_e);
+
+				s->level = 0;
 				break;
 			}
 
@@ -35,7 +42,7 @@ static int menu_admin(session_t *s) {
 				db_save_user(s->db_e, "employees.dat");
 
 				//reset menu level
-				s->level = 1;
+				s->level = 0;
 				break;
 			}
 
@@ -52,7 +59,7 @@ static int menu_admin(session_t *s) {
 				db_remove_user(s->db_e, username);
 				db_save_user(s->db_e, "employees.dat");
 
-				s->level = 1;
+				s->level = 0;
 				break;
 			}
 
@@ -73,13 +80,13 @@ static int menu_admin(session_t *s) {
 				P_DEBUG("%s", "Writing changes into database\n");
 #endif
 
-				s->level = 1;
+				s->level = 0;
 				break;
 			}
 
 		case 5: //log out
 			{
-				s->level = 0;
+				s->level = -1;
 				return 0;
 				break;
 			}
@@ -95,8 +102,10 @@ static int menu_employee(session_t *s) {
 	switch (s->level) {
 		case 0:
 			{
+				P_HEADER(s);
 				puts("---- Employee menu ----");
 				printf("1. Change password\n2. Log out\nYour selection: ");
+				fflush(stdin);
 				scanf("%d", &s->level);
 				break;
 			}
@@ -107,8 +116,9 @@ static int menu_employee(session_t *s) {
 				printf("new password: ");
 				scanf("%s", s->user->password);
 #ifdef __DEBUG__
-				P_DEBUG("Looking for %s in database\n", s->user->password);
+				P_DEBUG("Looking for %s in database\n", s->user->username);
 #endif
+				
 				//return to main menu
 				s->level = 0;
 				break;
@@ -116,7 +126,7 @@ static int menu_employee(session_t *s) {
 
 		case 2:
 			{
-				s->level = 0;
+				s->level = -1;
 				return 0;
 				break;
 			}
