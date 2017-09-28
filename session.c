@@ -25,8 +25,8 @@ session_t *session_init() {
 #endif
 		return NULL;
 	}
-	s->level = 1;
-	s->state = SS_READY;
+	s->level = 0;
+	s->state = SS_LOGGED_OUT;
 	s->db_a = db_load_user("admin.dat");
 	s->db_e = db_load_user("employees.dat");
 
@@ -79,6 +79,7 @@ int session_login(session_t *s) {
 #endif
 		u = db_find_user(s->db_e, s->user->username);
 		if (!u) {
+			s->state = SS_LOGIN_FAILED;
 			return SS_LOGIN_FAILED;
 		}
 		//check password on employees database
@@ -87,7 +88,7 @@ int session_login(session_t *s) {
 #endif
 		if (match_password(s->user->password, u)) {
 #ifdef __DEBUG__
-			P_DEBUG("Matched password with \"%s\"\n", s->user->password);
+			P_DEBUG("User %s has logged in successfully\n", s->user->username);
 #endif
 			s->type = U_EMPLOYEE;
 			s->state = SS_LOGGED_IN;
@@ -102,7 +103,7 @@ int session_login(session_t *s) {
 #endif
 		if (match_password(s->user->password, u)) {
 #ifdef __DEBUG__
-			P_DEBUG("Matched password with \"%s\"\n", s->user->password);
+			P_DEBUG("User %s has logged in successfully\n", s->user->username);
 #endif
 			s->type = U_ADMIN;
 			s->state = SS_LOGGED_IN;
@@ -111,6 +112,8 @@ int session_login(session_t *s) {
 		}
 	}
 	// failed to log in
+	s->state = SS_LOGIN_FAILED;
+	puts("Login failed");
 	return SS_LOGIN_FAILED;
 }
 

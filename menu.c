@@ -2,14 +2,21 @@
 
 static int menu_admin(session_t *s) {
 	switch (s->level) {
-		case 1: //main menu
+		case 0: //main menu
 			{
 				puts("---- Admin menu ----");
 				printf("1. List all employees\n2. Add an employee\n3. Delete an employee\
-						\n4. Change admin password\n5. Quit\nYour selection: ");
+						\n4. Change admin password\n5. Log out\nYour selection: ");
 				scanf("%d", &s->level);
 				break;
 			}
+		case 1: //list all
+			{
+				puts("---- All employees ----");
+				db_list_all(s->db_e);
+				break;
+			}
+
 		case 2: //add an employee
 			{
 				entry_user_t *new = malloc(sizeof(entry_user_t));
@@ -65,32 +72,69 @@ static int menu_admin(session_t *s) {
 #ifdef __DEBUG__ 
 				P_DEBUG("%s", "Writing changes into database\n");
 #endif
-				user_change_password(s->user)
 
 				s->level = 1;
 				break;
 			}
 
-		case 5: //quit
+		case 5: //log out
 			{
 				s->level = 0;
 				return 0;
+				break;
 			}
+
+		default:
+			s->level = 0;
+			break;
 	}
 	return 0;
 }
 
-static inline int menu_employee(session_t *s) {
+static int menu_employee(session_t *s) {
+	switch (s->level) {
+		case 0:
+			{
+				puts("---- Employee menu ----");
+				printf("1. Change password\n2. Log out\nYour selection: ");
+				scanf("%d", &s->level);
+				break;
+			}
+		case 1: //change password
+			{
+				puts("---- Change your password ----");
+				//todo: check for old password
+				printf("new password: ");
+				scanf("%s", s->user->password);
+#ifdef __DEBUG__
+				P_DEBUG("Looking for %s in database\n", s->user->password);
+#endif
+				//return to main menu
+				s->level = 0;
+				break;
+			}
+
+		case 2:
+			{
+				s->level = 0;
+				return 0;
+				break;
+			}
+
+		default:
+			s->level = 0;
+			return 0;
+	}
 	return 0;
 }
 
 void menu(session_t *s) {
 	if (s->type == U_ADMIN) {
-		while (s->level != 0) 
+		while (s->level != -1) 
 			menu_admin(s);
 	}
 	else if (s->type == U_EMPLOYEE) {
-		while (s->level != 0) {
+		while (s->level != -1) {
 			menu_employee(s);
 		}
 	}

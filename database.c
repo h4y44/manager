@@ -156,10 +156,11 @@ entry_user_t *db_find_user(entry_user_t *db, const char *username) {
 int db_add_user(entry_user_t *db, entry_user_t *new) {
 	//add to the end of the list
 	entry_user_t *ptr = db;
-
+	printf("xxx %p\n", ptr->next);
 	while (ptr->next != NULL) {
 		ptr = ptr->next;
 	}
+	puts("xxx");
 
 	ptr->next = new;
 	new->next = NULL;
@@ -215,6 +216,9 @@ int db_add_info(const char *username, entry_info_t *new) {
 
 void db_list_all(entry_user_t *data) {
 	entry_user_t *ptr = data;
+#ifdef __DEBUG__
+	P_DEBUG("Looping over database from %p\n", ptr);
+#endif
 	do {
 		printf("Name: %s\n----\n", ptr->username);
 		ptr = ptr->next;

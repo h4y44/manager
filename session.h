@@ -5,7 +5,6 @@
 #include "database.h"
 #include "user.h"
 #include "util.h"
-#include "menu.h"
 
 /*
 session, saves a pointer to current user,

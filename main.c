@@ -35,7 +35,9 @@ int main(int argc, char *argv[]) {
 	}
 	while (s->state != SS_LOGGED_IN) {
 		session_login(s);
-		session_start(s);
+		//check if login ok or failed
+		if (s->state == SS_LOGGED_IN)
+			session_start(s);
 	}
 	return 0;
 }
